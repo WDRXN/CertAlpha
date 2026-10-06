@@ -1,0 +1,6 @@
+# CertAlpha dependencies
+#
+# Runtime: Python >= 3.8 — standard library ONLY. No third-party packages.
+#
+# Dev/test (optional):
+#   none required — tests/selftest.py uses in-memory synthetic fixtures

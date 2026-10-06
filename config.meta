@@ -1,0 +1,65 @@
+{
+  "tool": "CertAlpha",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "copyright": "© 2026 WDRXN — all rights reserved, no permission granted for reuse, modification or redistribution",
+  "category": "evasion/pe-manipulation",
+  "description": "Extract an Authenticode certificate from any signed EXE/DLL and transplant it into a target PE of choice. Offline byte-level PE + PKCS#7 manipulation.",
+  "risk_level": "HIGH",
+  "risk_class": "signature-spoofing",
+  "risk_gate": {
+    "enforced": true,
+    "flag": "--ack-authorized",
+    "applies_to": ["inject"],
+    "statement": "Transplanting an Authenticode certificate is only effective against naive signature checks; the graft is never cryptographically valid. Authorized testing only."
+  },
+  "ethics": "Use only on binaries and systems you are authorized to test. No hidden behavior: no execution, no network, no persistence.",
+  "execution": {
+    "auto_execute": false,
+    "network_access": false,
+    "subprocess": false,
+    "persistence": false,
+    "stealth": false,
+    "writes": "only to paths explicitly named by the operator (-o / -out-dir)"
+  },
+  "dependencies": {
+    "runtime": "Python >= 3.8",
+    "third_party": [],
+    "system": [],
+    "compile_flags": null,
+    "build_step": null
+  },
+  "target_os": ["windows", "linux", "macos"],
+  "target_formats": ["PE32", "PE32+"],
+  "entrypoints": {
+    "module": "python -m certalpha <command>",
+    "package_dir": "certalpha/",
+    "self_test": "python tests/selftest.py"
+  },
+  "commands": ["info", "extract", "inspect", "verify", "strip", "inject"],
+  "placeholders": ["{{DONOR_PE}}", "{{TARGET_PE}}", "{{OUTPUT_PE}}", "{{DONOR_STEM}}"],
+  "error_contract": {
+    "format": "json",
+    "fields": ["status", "code", "message", "suggestion"],
+    "exit_codes": {"0": "success", "2": "operational error", "3": "internal error"}
+  },
+  "files": [
+    "certalpha/__init__.py",
+    "certalpha/__main__.py",
+    "certalpha/cli.py",
+    "certalpha/der.py",
+    "certalpha/errors.py",
+    "certalpha/ops.py",
+    "certalpha/pe.py",
+    "certalpha/pki.py",
+    "tests/selftest.py",
+    "requirements.txt",
+    "usage.md",
+    "README.md",
+    "config.meta"
+  ],
+  "validation": {
+    "selftest_checks": "PE32/PE32+ parse, checksum, authenticode digest, extract/inject(replace+append)/strip round-trip, X.509 + PKCS#7 parsing, digest match/mismatch, error contract, CLI smoke",
+    "external_crosscheck": "certalpha verify {{SIGNED_PE}} should report 'digest MATCH' for genuinely signed files; cross-check with 'signtool verify /pa'"
+  }
+}
